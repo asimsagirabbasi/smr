@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+        <title>Survey</title>
+        <style type="text/css">
+            .btn-red{
+                background: red;
+                color: #fff;
+            }
+            .input-disabled{
+              disabled: disabled;
+            }
+        </style>
+    </head>
+    <body style="background:#fff;">
+        <div style="height: 60px;background: #fffefe;padding-top: 15px;box-shadow: -5px 4px 34px -6px rgba(0,0,0,0.75);">
+            <div class="container">
+                <div class="col-xs-12">
+                    <div class="col-xs-4" style="text-align: left;">
+                        <img src="" id="logo" class="img-responsive" style="width:30%;"/>
+                    </div >
+                    <div class="col-xs-4" style="text-align:center;">
+                        <h4>Dashboard</h4>
+                    </div>
+                    <div class="col-xs-4">
+                        <button type="button" class="btn btn-red pull-right" id="btn-submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+          <div class="col-xs-12" style="margin-top:20px;">
+              <form id="feedback-form">
+                <div id="question">
+                </div>
+              </form>
+          </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript">
+            var db = null;
+            document.addEventListener("deviceready", onDeviceReady, false);
+            function onDeviceReady(){
+                db = window.sqlitePlugin.openDatabase({name: 'survey.db', location: 'default'});
+                // db = window.openDatabase("survey", "1.0", "Survey Database", 200000);
+                $('#logo').attr('src', localStorage.getItem('event-logo'));
+                populateSurveyForm();
+                console.log(localStorage.getItem('visitorid')+" "+localStorage.getItem('exhibitorid'));
+            }
+
+            $('#btn-submit').on('click', function(){
+              var datas = $('#feedback-form').serializeArray();
+              var formattedDatas = formatData(datas);
+                db.transaction(function(tx){
+                    $.each(formattedDatas, function(i, formattedData){
+                        if(formattedData['value']!=""){
+                          if(formattedData['type'] === 'single'){
+                            value = formattedData['value'];
+                          }else{
+                            value = JSON.stringify(formattedData['value']);
+                          }
+                          tx.executeSql("INSERT INTO feedbackdata (eventid, surveyid, exhibitorid, questionid, remarks, type, value, surveyfor) VALUES(?,?,?,?,?,?,?,?)", [formattedData['eventid'],formattedData['surveyid'], formattedData['exhibitorid'], formattedData['questionid'], formattedData['remarks'], formattedData['type'], value, formattedData['surveyfor']]);
+                        }
+                    });
+                }, errorCB, function(){
+                  localStorage.setItem('exhibitorid','');
+                  localStorage.setItem('visitorid','');
+                  localStorage.setItem('usertype','');
+                  localStorage.setItem('surveyid', '');
+                  window.location = 'thankyou.html';
+                });
+            });
+
+            // $('body').on('change', '.checkboxm', function(){
+            //   console.log($(this).parent().parent().next().closest('input').attr('name'));
+            // });
+
+            function formatData(datas){
+              var formattedDatas = [];
+              $.each(datas, function(key, data){
+                var formattedData = [];
+                var questionid;
+                var position;
+                var str = data['name'];
+                if(data['name'].indexOf('remarks')>0){
+                  questionid = str.substr(3, str.indexOf('_')-3);
+                  position = findArrayKey(formattedDatas, questionid);
+                  if(position >= 0){
+                    formattedData = formattedDatas[position];
+                    formattedData['remarks'] = data['value'];
+                  }
+                }else if(data['name'].indexOf('head1')>0){
+                  var queValue = [];
+                  questionid = str.substr(3, str.indexOf('-')-3);
+                  position = findArrayKey(formattedDatas, questionid);
+                  if(position >= 0){
+                    formattedData = formattedDatas[position];
+                    formattedData['value'].push({
+                      'head1' : data['value']
+                    });
+                  }else{
+                    formattedData['questionid'] = questionid;
+                    formattedData['eventid'] = localStorage.getItem('event-id');
+                    formattedData['surveyid'] = localStorage.getItem('surveyid');
+                    formattedData['surveyfor'] = localStorage.getItem('usertype');
+                    formattedData['value'] = [];
+                    formattedData['value'].push({
+                      'head1' : data['value']
+                    });
+                    formattedData['remarks'] = "";
+                    formattedData['exhibitorid'] = (localStorage.getItem('exhibitorid')!="")?localStorage.getItem('exhibitorid'):localStorage.getItem('visitorid');
+                    formattedData['type'] = 'multi';
+                    formattedData['remarks'] = "";
+                    formattedDatas.push(formattedData);
+                  }
+                }else if(data['name'].indexOf('head2')>0){
+                  questionid = str.substr(3, str.indexOf('-')-3);
+                  position = findArrayKey(formattedDatas, questionid);
+                  if(position >= 0){
+                    formattedData = formattedDatas[position];
+                    formattedData['value'].push({
+                      'head2' : data['value']
+                    });
+                  }else{
+                    formattedData['questionid'] = questionid;
+                    formattedData['eventid'] = localStorage.getItem('event-id');
+                    formattedData['surveyid'] = localStorage.getItem('surveyid');
+                    formattedData['surveyfor'] = localStorage.getItem('usertype');
+                    formattedData['value'] = [];
+                    formattedData['value'].push({
+                      'head2' : data['value']
+                    });
+                    formattedData['remarks'] = "";
+                    formattedData['exhibitorid'] = (localStorage.getItem('exhibitorid')!="")?localStorage.getItem('exhibitorid'):localStorage.getItem('visitorid')
+                    formattedData['type'] = 'multi';
+                    formattedData['remarks'] = "";
+                    formattedDatas.push(formattedData);
+                  }
+                }else if(data['name'].indexOf('[') > 0){
+                  questionid = str.substr(3, str.indexOf('[')-3);
+                  position = findArrayKey(formattedDatas, questionid);
+                  if(position >= 0){
+                    formattedData = formattedDatas[position];
+                    formattedData['value'].push(data['value']);
+                  }else{
+                    formattedData['questionid'] = questionid;
+                    formattedData['eventid'] = localStorage.getItem('event-id');
+                    formattedData['surveyid'] = localStorage.getItem('surveyid');
+                    formattedData['surveyfor'] = localStorage.getItem('usertype');
+                    formattedData['value'] = [];
+                    formattedData['value'].push(data['value']);
+                    formattedData['remarks'] = "";
+                    formattedData['exhibitorid'] = (localStorage.getItem('exhibitorid')!="")?localStorage.getItem('exhibitorid'):localStorage.getItem('visitorid')
+                    formattedData['type'] = 'multi';
+                    formattedData['remarks'] = "";
+                    formattedDatas.push(formattedData);
+                  }
+                }else{
+                  questionid = str.substr(3, str.length-3);
+                  formattedData['questionid'] = questionid;
+                  formattedData['eventid'] = localStorage.getItem('event-id');
+                  formattedData['surveyid'] = localStorage.getItem('surveyid');
+                  formattedData['surveyfor'] = localStorage.getItem('usertype');
+                  formattedData['value'] = data['value'];
+                  formattedData['remarks'] = "";
+                  formattedData['exhibitorid'] = (localStorage.getItem('exhibitorid')!="")?localStorage.getItem('exhibitorid'):localStorage.getItem('visitorid')
+                  formattedData['type'] = 'single';
+                  formattedData['remarks'] = "";
+                  formattedDatas.push(formattedData);
+                }
+              });
+              console.log(formattedDatas);
+              return formattedDatas;
+            }
+
+            function findArrayKey(formattedDatas, questionid){
+              var pos = -1;
+              $.each(formattedDatas, function(i, formattedData){
+                if(formattedData['questionid'].toString() === questionid.toString()){
+                  pos = i;
+                  return false;
+                }
+              });
+              return pos;
+            }
+
+            function populateSurveyForm(){
+                var surveyid = localStorage.getItem('surveyid');
+                console.log("Inside feedback form"+surveyid);
+                db.transaction(function(tx){
+                    tx.executeSql("SELECT * FROM feedbackquestions WHERE surveyid = "+surveyid,[], querySuccessF,errorCB);
+                });
+            }
+
+            function querySuccessF(tx, result){
+                resultrow = result.rows;
+                console.log(resultrow.length);
+                if(resultrow.length>0){
+                  questiondetails = JSON.parse(resultrow.item(0).questiondetails);
+                  console.log(questiondetails);
+                  $.each(questiondetails, function(i, questiondetail){
+                    var type = questiondetail.inputtype;
+                    switch (type) {
+                        case 'input':
+                        default:
+                            drawinput(questiondetail);
+                            break;
+                        case 'textarea':
+                            drawtextarea(questiondetail);
+                            break;
+                        case 'radiobutton':
+                            drawhorizontalradiobutton(questiondetail);
+                            break;
+                        case 'checkbox':
+                            drawhorizontalcheckbox(questiondetail);
+                            break;
+                        case 'matrix':
+                            drawmatrix(questiondetail);
+                            break;
+                        case 'multi_matrix':
+                            drawmultimatrix(questiondetail);
+                            break;
+                        case 'nested':
+                            drawnestedinput(questiondetail);
+                            break;
+                        case 'scale':
+                            drawscale(questiondetail);
+                            break;
+                        case 'heading':
+                            drawheading(questiondetail);
+                            break;
+                    }
+                  });
+                }else{
+                  window.plugins.toast.showShortBottom("Something went wrong.");
+                }
+            }
+
+            function errorCB(err) {
+                console.log(err);
+                window.plugins.toast.showShortBottom("Something went wrong.");
+            }
+
+            function drawinput(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>	';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table cascade-table">';
+              html += '<tbody>';
+              html += '<tr>';
+              html += '<td class="cascade-table-td">';
+              html += '<input type="text" name="que' + data.questionid + '" class="ace" />';
+              html += '</td>';
+              html += '</tr>';
+              html += '</tbody>';
+              html += '</table>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawtextarea(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>	';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table cascade-table">';
+              html += '<tbody>';
+              html += '<tr>';
+              html += '<td class="cascade-table-td">';
+              html += '<textarea class="comment-box" name="que' + data.questionid + '"></textarea>';
+              html += '</td>';
+              html += '</tr>';
+              html += '</tbody>';
+              html += '</table>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawmatrix(data) {
+            var html = '';
+            html = commonhtml();
+            html += '<div class="que-text">';
+            html += '<p>';
+            html += '<strong>';
+            html += data.questiontext;
+            html += '</strong>';
+            html += '</p>';
+            html += '</div>';
+            html += '<div class="que-tqble table-responsive">';
+            html += '<table id="simple-table" class="table  table-bordered table-hover">';
+            html += '<thead>';
+            html += '<tr>';
+            $.each(data.attributes.dimension, function (i, label) {
+                if (data.attributes.checkbox === 'yes' && i === 1) {
+                    html += '<th>Please Tick</th>';
+                    i = 0;
+                }
+                html += '<th>' + label + '</th>';
+            });
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
+            $.each(data.subquestions, function (i, subquestion) {
+                var disabled = "";
+                html += '<tr>';
+                html += '<td>' + subquestion.questiontext + '</td>';
+                if (data.attributes.checkbox === 'yes') {
+                    disabled = '';
+                    html += '<td class="center">';
+                    html += '<label class="pos-rel">';
+                    html += '<input type="checkbox" name="que' + data.questionid + '[]" value="' + subquestion.questiontext + '" class="ace checkboxm"/>';
+                    html += '<span class="lbl"></span>';
+                    html += '</label>';
+                    html += '</td>';
+                }
+                html += '<td class="radio">';
+                html += '<table  class="table cascade-table">';
+                html += '<thead>';
+                html += '</thead>';
+                html += '<tbody>';
+                html += '<tr>';
+                $.each(subquestion.options.options[0], function (j, option) {
+                    html += '<td class="center cascade-table-td">';
+                    html += '<label class="pos-rel">';
+                    html += '<input name="que' + subquestion.questionid + '" value="' + option + '" class="ace radion" type="radio" ' + disabled + '>';
+                    html += '<span class="lbl">'+option+'</span>';
+                    html += '</label>';
+                    html += '</td>';
+                });
+                html += '</tr>';
+                html += '</tbody>';
+                html += '</table>';
+                html += '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            html += '</table>';
+            if (data.attributes.remarks === 'yes') {
+                html += '<label class="comment-label">Please provide your suggestions for improvement </label>';
+                html += '<div>';
+                html += '<textarea class="comment-box" name="que'+data.questionid+'_remarks"></textarea>';
+                html += '</div>';
+            }
+            html += '</div>';
+            $('#question').append(html);
+          }
+
+          function drawmultimatrix(data){
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>';
+              html += '<div class="que-tqble table-responsive">';
+              html += '<table id="simple-table" class="table  table-bordered table-hover">';
+              html += '<thead>';
+              html += '<tr>';
+              html += '<th></th>';
+              $.each(data.attributes.dimension, function (i, label) {
+                  html += '<th>' + label + '</th>';
+              });
+              html += '</tr>';
+              html += '</thead>';
+              html += '<tbody>';
+
+              $.each(data.subquestions, function (i, subquestion) {
+                  var disabled = "";
+                  html += '<tr>';
+                  html += '<td>' + subquestion.questiontext + '</td>';
+                  html += '<td>';
+                  html += '<table  class="table cascade-table">';
+                  html += '<thead>';
+                  html += '</thead>';
+                  html += '<tbody>';
+                  html += '<tr>';
+                  $.each(subquestion.options.options[0], function (j, option) {
+                      html += '<td class="center cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input name="que' + subquestion.questionid + '-head1" value="' + option + '" class="ace radion" type="radio" ' + disabled + '>';
+                      html += '<span class="lbl">'+option+'</span>';
+                      html += '</label>';
+                      html += '</td>';
+                  });
+                  html += '</tr>';
+                  html += '</tbody>';
+                  html += '</table>';
+                  html += '</td>';
+                  html += '<td>';
+                  html += '<table  class="table cascade-table">';
+                  html += '<thead>';
+                  html += '</thead>';
+                  html += '<tbody>';
+                  html += '<tr>';
+                  $.each(subquestion.options.options[1], function (j, option) {
+                      html += '<td class="center cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input name="que' + subquestion.questionid + '-head2" value="' + option + '" class="ace radion" type="radio" ' + disabled + '>';
+                      html += '<span class="lbl">'+option+'</span>';
+                      html += '</label>';
+                      html += '</td>';
+                  });
+                  html += '</tr>';
+                  html += '</tbody>';
+                  html += '</table>';
+                  html += '</td>';
+                  html += '</tr>';
+              });
+              html += '</tbody>';
+              html += '</table>';
+              if (data.attributes.remarks === 'yes') {
+                  html += '<label class="comment-label">If rating is below 3 provide remarks </label>';
+                  html += '<div>';
+                  html += '<textarea class="comment-box" name="que'+data.questionid+'_remarks"></textarea>';
+                  html += '</div>';
+              }
+              html += '</div>';
+              $('#question').append(html);
+          }
+
+          function drawhorizontalcheckbox(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>	';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table cascade-table">';
+              html += '<tbody>';
+              for (i = 0; i < data.options.options.length; i++) {
+                  if (i % 2 == 0) {
+                      html += '<tr>';
+                      html += '<td class="cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input type="checkbox" name="que' + data.questionid + '[]" value="' + data.options.options[i] + '" class="ace checkboxc" />';
+                      html += '<span class="lbl">&nbsp;&nbsp;' + data.options.options[i] + '</span>';
+                      html += '</label>';
+                      html += '</td>';
+                  } else {
+                      html += '<td class="cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input type="checkbox" name="que' + data.questionid + '[]" value="' + data.options.options[i] + '" class="ace checkboxc" />';
+                      html += '<span class="lbl">&nbsp;&nbsp;' + data.options.options[i] + '</span>';
+                      html += '</label>';
+                      html += '</td>';
+                      html += '</tr>';
+                  }
+
+                  if (data.options.options.length % 2 != 0 && data.options.options.length == (i + 1)) {
+                      html += '</tr>';
+                  }
+              }
+              html += '</tbody>';
+              html += '</table>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawhorizontalradiobutton(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>	';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table cascade-table">';
+              html += '<tbody>';
+              for (i = 0; i < data.options.options.length; i++) {
+                  if (i % 2 == 0) {
+                      html += '<tr>';
+                      html += '<td class="cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input type="radio" name="que' + data.questionid + '" value="' + data.options.options[i] + '" class="ace q' + data.questionid + '" />';
+                      html += '<span class="lbl">&nbsp;&nbsp;' + data.options.options[i] + '</span>';
+                      html += '</label>';
+                      html += '</td>';
+                  } else {
+                      html += '<td class="cascade-table-td">';
+                      html += '<label class="pos-rel">';
+                      html += '<input type="radio" name="que' + data.questionid + '" value="' + data.options.options[i] + '" class="ace q' + data.questionid + '" />';
+                      html += '<span class="lbl">&nbsp;&nbsp;' + data.options.options[i] + '</span>';
+                      html += '</label>';
+                      html += '</td>';
+                      html += '</tr>';
+                  }
+
+                  if (data.options.options.length % 2 != 0 && data.options.options.length == (i + 1)) {
+                      html += '</tr>';
+                  }
+              }
+              html += '</tbody>';
+              html += '</table>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawnestedinput(data) {
+              var type = 'checkbox';
+              if (data.attributes.checkbox === 'no') {
+                  type = 'radio';
+              }
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>';
+              html += data.questiontext;
+              html += '</strong>';
+              html += '</p>';
+              html += '</div>';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table  table-bordered table-hover">';
+              html += '<thead>';
+              html += '<tr>';
+              $.each(data.attributes.dimension, function (i, label) {
+                  html += '<th>' + label + '</th>';
+              });
+              html += '</tr>';
+              html += '</thead>';
+              html += '<tbody>';
+              $.each(data.options, function (i, value) {
+                  if (jQuery.type(value) != 'array') {
+                      html += '<tr>';
+                      html += '<td colspan="2"><strong style="color:#727070">' + i + '</strong></td>';
+                      html += '</tr>';
+                      $.each(value, function (j, val) {
+                          if (jQuery.type(val) != 'array') {
+                              html += '<tr>';
+                              html += '<td colspan="2"><strong style="color:#727070;padding-left:20px;">' + j + '</strong></td>';
+                              html += '</tr>';
+
+                              $.each(val, function (k, v) {
+                                  html += '<tr>';
+                                  html += '<td  style="padding-left:40px;">' + k + '</td>';
+                                  html += '<td class="center">';
+                                  html += '<label class="pos-rel">';
+                                  html += '<input  name="que' + data.questionid + '[]" value="' + i + '>' + j + '>' + k + '" type="' + type + '" class="ace q' + data.questionid + ' nested" />';
+                                  html += '<span class="lbl"></span>';
+                                  html += '</label>';
+                                  html += '</td>';
+                                  html += '</tr>';
+                              });
+                          } else {
+                              html += '<tr>';
+                              html += '<td style="padding-left:40px;">' + j + '</td>';
+                              html += '<td class="center">';
+                              html += '<label class="pos-rel">';
+                              html += '<input  name="que' + data.questionid + '[]" value="' + i + '>' + j + '" type="' + type + '" class="ace q' + data.questionid + ' nested" />';
+                              html += '<span class="lbl"></span>';
+                              html += '</label>';
+                              html += '</td>';
+                              html += '</tr>';
+                          }
+                      });
+
+                  } else {
+                      html += '<tr>';
+                      html += '<td style="padding-left:20px;">' + i + '</td>';
+                      html += '<td class="center">';
+                      html += '<label class="pos-rel">';
+                      html += '<input name="que' + data.questionid + '[]" value="' + i + '" type="' + type + '" class="ace q' + data.questionid + ' nested" />';
+                      html += '<span class="lbl"></span>';
+                      html += '</label>';
+                      html += '</td>';
+                      html += '</tr>';
+                  }
+              });
+              html += '</tbody>';
+              html += '</table>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawscale(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong>' + data.questiontext + '</strong>';
+              html += '</p>';
+              html += '</div>';
+              html += '<div class="que-tqble">';
+              html += '<table id="simple-table" class="table  table-bordered table-hover">';
+              html += '<thead>';
+              html += '<tr>';
+              for (var i = data.attributes.scale; i > 0; i--) {
+                  html += '<th class="center">' + i + '</th>';
+              }
+              html += '</tr>';
+              html += '</thead>';
+              html += '<tbody>';
+              html += '<tr>';
+              $.each(data.options, function (i, option) {
+                  html += '<td class="center cascade-table-td">';
+                  html += '<label class="pos-rel">';
+                  html += '<input name="que' + data.questionid + '" value="' + option + '" class="ace q' + data.questionid + '" type="radio">';
+                  html += '<span class="lbl"></span>';
+                  html += '</label>';
+                  html += '</td>';
+              });
+              html += '</tr>';
+              html += '</tbody>';
+              html += '</table>';
+              if (data.attributes.remarks === 'yes') {
+                  html += '<label class="comment-label">If rating is below 3 provide remarks </label>';
+                  html += '<div>';
+                  html += '<textarea class="comment-box" name="que'+data.questionid+'_remarks"></textarea>';
+                  html += '</div>';
+              }
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function drawheading(data) {
+              var html;
+              html = commonhtml();
+              html += '<div class="que-text">';
+              html += '<p>';
+              html += '<strong><u>' + data.questiontext + '</u></strong>';
+              html += '</p>';
+              html += '</div>';
+              $('#question').append(html);
+          }
+          function commonhtml() {
+              var path = window.location.pathname;
+              if (path === 'preview') {
+                  var html = '<h3 class="row header smaller lighter blue" style="margin:0px">';
+                  html += '<div class="col-xs-5 pull-right" style="text-align: right;padding: 0 9px;">';
+                  html += '<div class="sidebar-shortcuts-small" id="sidebar-shortcuts-large">';
+                  html += '<button class="btn btn-info">';
+                  html += '<i class="ace-icon fa fa-pencil"></i>';
+                  html += '</button>';
+                  html += '<button class="btn btn-danger">';
+                  html += '<i class="ace-icon fa fa-cogs"></i>';
+                  html += '</button>';
+                  html += '</div>';
+                  html += '</div>';
+                  html += '</h3>';
+              }
+              {
+                  html = '';
+              }
+              return html;
+          }
+
+        </script>
+    </body>
+</html>

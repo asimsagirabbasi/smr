@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <title>Survey</title>
+    </head>
+    <body>
+        <div id="loader">
+        </div>
+        <div class="container">
+            <div class="form-container" style="margin-top: 36%;width: 50%;margin-left:auto;margin-right:auto;">
+                <img src="" id="logo" alt="logo" style="width:50%;margin-left: 20%;"/>
+                <form id="login-form" method="POST">
+                    <div class="form-group">
+                       <input type="text" class="form-control" id="username" placeholder="Username" >
+                    </div>
+                    <div class="form-group">
+                       <input type="password" class="form-control" id="password" placeholder="Password" />
+                    </div>
+                    <div class="form-group">
+                       <input type="button" class="btn btn-primary form-control" value="Login" id="login" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript">
+            var db = null;
+            document.addEventListener("deviceready", onDeviceReady, false);
+            var websiteName = 'http://www.technople.in/imtex2018';
+            function onDeviceReady(){
+                if(localStorage.getItem('email')){
+                  window.location = 'dashboard.html';
+                }
+                db = window.sqlitePlugin.openDatabase({name: 'survey.db', location: 'default'});
+                // db = window.openDatabase("survey", "1.0", "Survey Database", 200000);
+                $('#logo').attr('src', localStorage.getItem('event-logo'));
+                $.ajaxSetup({
+                  headers : {
+                    'Content-Type' : 'application/json',
+                    'Accept'       : 'application/json',
+                    'X-Auth-Token' : '2fa7b041eea9ee875e012bac495a639111c'
+                  }
+                });
+                $(document).ajaxStart(function () {
+                    $('#loader').css('display', 'block');
+                });
+                $(document).ajaxComplete(function () {
+                    $('#loader').css('display', 'none');
+                });
+                $('body').on('click', '#login', function(){
+                    login();
+                });
+            }
+
+            function login(){
+                var html = "";
+                var email = $('#username').val();
+                var password = $('#password').val();
+                var data = {
+                        'email' : email,
+                        'password' : password
+                    };
+                $.ajax({
+                    url : websiteName+'/login/userlogin',
+                    type: 'post',
+                    dataType : 'json',
+                    contentType: "application/json",
+                    data : JSON.stringify(data),
+                    success: function(response){
+
+                    },
+                    error : function(x, response){
+                        console.log(x);
+                        window.plugins.toast.showShortBottom("Something went wrong.");
+                    }
+                }).done(function(response){
+                        var email = response.data.email;
+                        var name = response.data.firstname+" "+response.data.lastname
+                        var userid = response.data.id;
+                        localStorage.setItem('email', response.data.email);
+                        localStorage.setItem('name', response.data.firstname+" "+response.data.lastname);
+                        localStorage.setItem('userid', response.data.id);
+                        populateExhibitorData();
+                });
+            }
+
+            function populateExhibitorData(){
+                $.getJSON(websiteName+'/user/getexhibitors', function(response){
+                    if(response.status){
+                        db.transaction(function(tx){
+                            tx.executeSql('DROP TABLE IF EXISTS exhibitors');
+                            tx.executeSql('CREATE TABLE IF NOT EXISTS exhibitors (exhibitorid integer, hall_no text, stall_no text, company_name text, city text, state text, country text, mobile text, email text, designation text, respondentname text)');
+                            $.each(response.data, function(i, item){
+                                tx.executeSql('INSERT INTO exhibitors (exhibitorid, hall_no, stall_no, company_name, city, state, country, mobile, email, designation, respondentname) VALUES(?,?,?,?,?,?,?,?,?,?,?)', [response.data[i].id, response.data[i].hall_no, response.data[i].stall_no,response.data[i].company_name, response.data[i].city, response.data[i].state,response.data[i].country,response.data[i].mobile, response.data[i].email, response.data[i].designation, response.data[i].respondentname]);
+                            });
+                        }, errorCB, function(){
+                            eventStats();
+                        });
+                    }
+                }).done(function(){
+                    // eventStats();
+                });
+            }
+
+            function feedbackQuestion(){
+                var event_id = localStorage.getItem('event-id');
+                $.getJSON(websiteName+'/survey/get_survey_questions?event_id='+event_id, function(response){
+                    if(response.status){
+                        db.transaction(function(tx){
+                            tx.executeSql('DROP TABLE IF EXISTS feedbackquestions');
+                            tx.executeSql('CREATE TABLE IF NOT EXISTS feedbackquestions (surveyid integer, surveyname text, surveyfor text, questiondetails text)');
+                            $.each(response.data, function(i, item){
+                                tx.executeSql('INSERT INTO feedbackquestions (surveyid, surveyname, surveyfor, questiondetails) VALUES(?,?,?,?)', [response.data[i].surveyid, response.data[i].surveyname, response.data[i].surveyfor, JSON.stringify(response.data[i].surveydata.questiondetails)]);
+                            });
+                        }, errorCB, function(){
+                            visitorTable();
+                        });
+                    }
+                }).done(function(){
+                    // feedbackTable();
+                });
+            }
+
+            function visitorTable(){
+              db.transaction(function(tx){
+                  tx.executeSql('DROP TABLE IF EXISTS visitors');
+                  tx.executeSql('CREATE TABLE IF NOT EXISTS visitors (id integer primary key autoincrement, name text, designation text, address text, city text, contactno text, company_name text)');
+              }, errorCB, function(){
+                  feedbackTable();
+              });
+            }
+
+            function feedbackTable(){
+                db.transaction(function(tx){
+                    tx.executeSql('DROP TABLE IF EXISTS feedbackdata');
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS feedbackdata (id integer primary key autoincrement, eventid integer, surveyid integer, exhibitorid integer, questionid integer, remarks text, type text, value text, surveyfor text)');
+                }, errorCB, function(){
+                    window.location = 'dashboard.html';
+                });
+            }
+
+            function eventStats(){
+                var event_id = localStorage.getItem('event-id');
+                $.getJSON(websiteName+'/event/stats?event_id='+event_id, function(response){
+                    if(response.status){
+                        // console.log("Inside event stats");
+                        // console.log("Local Storage Data");
+                        localStorage.setItem('start-date', response.data[0].surveystartdate);
+                        localStorage.setItem('end-date', response.data[0].surveyenddate);
+                        localStorage.setItem('event-name', response.data[0].eventname);
+                        console.log(localStorage.getItem('start-date'));
+                        db.transaction(function(tx){
+                            tx.executeSql('DROP TABLE IF EXISTS eventstats');
+                            tx.executeSql('CREATE TABLE IF NOT EXISTS eventstats (surveyid integer, eventid integer, surveyname text, surveyfor text, stats text)');
+                            $.each(response.data, function(i, item){
+                                tx.executeSql('INSERT INTO eventstats (surveyid, eventid, surveyname, surveyfor, stats) VALUES(?,?,?,?,?)', [response.data[i].surveyid, event_id, response.data[i].surveyname, response.data[i].surveyfor, JSON.stringify(response.data[i].daywisedata)]);
+                            });
+                        }, errorCB, function(){
+                            feedbackQuestion();
+                        });
+                    }
+                }).done(function(){
+                    // feedbackQuestion();
+                });
+            }
+
+            function errorCB(err) {
+                console.log(err);
+                // alert("Error processing SQL: "+err.code);
+            }
+
+            function successCB() {
+                // alert("success!");
+            }
+
+
+        </script>
+    </body>
+</html>

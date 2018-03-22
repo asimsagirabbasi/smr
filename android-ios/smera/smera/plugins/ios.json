@@ -1,0 +1,31 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-firebase": {
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    },
+    "cordova-plugin-googleplus": {
+      "REVERSED_CLIENT_ID": "com.googleusercontent.apps.530020253105-s48jat4b66flpn6qnb4cuorouo6gnmds",
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    },
+    "cordova-plugin-inappbrowser": {
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    },
+    "nl.x-services.plugins.toast": {
+      "PACKAGE_NAME": "com.technople.bizshorts"
+    }
+  },
+  "dependent_plugins": {}
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+      <meta name="format-detection" content="telephone=no">
+      <meta name="msapplication-tap-highlight" content="no">
+      <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+      <title>Smera</title>
+      <!-- Bootstrap Core CSS -->
+      <link href="css/bootstrap.min.css" rel="stylesheet">
+      <!-- Theme CSS -->
+      <link href="css/freelancer.min.css" rel="stylesheet">
+      <!-- Custom Fonts -->
+      <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+      <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+      <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+      <style type="text/css">
+        .strip{ height:34px; background:url(../img/top-head-bg.jpg) repeat-x top center;}
+      </style>
+   </head>
+   <body id="page-top" class="index">
+      <!-- Navigation -->
+      <div class="container">
+          <div class="row">
+            <div class="strip">&nbsp;</div>
+          </div> 
+         <div class="row nav-bg">
+            <div class="col-md-2 col-sm-2 col-xs-2">
+              <img src="img/arrow-back.png" id="foldit" class="img-responsive curpot" alt="search-icon" style="width: 43%;
+    margin-top: 9px;">
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-6 pull-right">
+              <!-- <img src="img/smera-logo.jpg" class="img-responsive pull-right" width="35px" alt="smera-logo"> -->
+              <h4 style="padding-top: 0px; text-align: right;" class="logo-font">RATINGS<span style="color:red;text-transform: uppercase;font-weight: 700;font-size: 18px;">BUZZ</span></h4>
+            </div>
+         </div>
+      </div>
+      <!-- /.container-fluid -->
+      <div class="container">
+         <div class="row">
+                <form id="enquiry-form">
+                  <div class="col-sm-12 form-grp-class">
+                      <div class="form-group float-label-control">
+                          <label class="control-label">Name of the Entity I Couldn't Find</label>
+                          <input id="entityName" name="entityName" type="text" class="form-control"  data-rule-required="true" data-msg-required="Please enter name of the entity">
+                      </div>
+                  </div>
+                  <div class="col-sm-12 form-grp-class">
+                      <div class="form-group float-label-control">
+                          <label class="control-label">Location of Entity</label>
+                          <input id="location" name="location" type="text" class="form-control" data-rule-required="true" data-msg-required="Please enter location">
+                      </div>
+                  </div>
+                  <div class="col-sm-12 form-grp-class">
+                      <div class="form-group float-label-control">
+                          <label class="control-label">My Name</label>
+                          <input id="name" name="name" type="text" class="form-control" data-rule-required="true" data-msg-required="Please enter your name">
+                      </div>
+                  </div>
+                  <div class="col-sm-12 form-grp-class">
+                      <div class="form-group float-label-control">
+                          <label class="control-label">My Mobile Number</label>
+                          <input id="mobileNo" name="mobileNo" type="text" class="form-control" data-rule-required="true" data-rule-number="true" data-rule-minlength="10" data-rule-maxlength="10" data-msg-minlength="Please enter valid mobile number." data-msg-maxlength="Please enter valid mobile number." data-msg-required="Please enter your mobile no" data-msg-number="Please enter valid mobile no">
+                      </div>
+                  </div>
+                  <div class="col-sm-12 form-grp-class">
+                      <div class="form-group float-label-control">
+                          <label class="control-label">My Email Id</label>
+                          <input id="email" name="email" type="text" class="form-control" data-rule-required="true" data-rule-email="true" data-msg-required="Please enter your email address" data-msg-email="Please enter a valid email address">
+                      </div>
+                  </div>
+                  <div class="col-sm-12">
+                      <div class="form-group float-label-control">
+                          <button type="button" class="btn btn-primary" id="send-btn" onClick="sendMail();return false;">Submit</button>
+                      </div>
+                  </div>
+                </form>
+         </div>
+      </div>
+      <script type="text/javascript" src="cordova.js"></script>
+      <!--<script type="text/javascript" src="js/index.js"></script>-->
+      <!-- jQuery -->
+      <script src="js/jquery.min.js"></script>
+      <!-- Bootstrap Core JavaScript -->
+      <script src="js/bootstrap.min.js"></script>
+      <script src="js/jquery-float.js"></script>
+      <script src="js/jquery.validate.js"></script>
+      <script type="text/javascript">
+        
+        $(document).ready(function(){
+            $('#foldit').on('click', function(){
+              window.history.back();
+            });
+            $('#enquiry-form').validate({
+              errorElement: 'span'
+            });
+        });
+
+        function sendMail(){
+          if($('#enquiry-form').valid()){
+            var data = {
+              'entityName' : $('#entityName').val(),
+              'location' : $('#location').val(),
+              'name' : $('#name').val(),
+              'mobileNo' : $('#mobileNo').val(),
+              'email' : $('#email').val(),
+              'entityType' : '',
+            };
+			url = 'https://www.smera.in/app/sendmail.php?entityName='+data['entityName']+'&location='+data['location']+'&name='+data['name']+'&mobileNo='+data['mobileNo']+'&email='+data['email'];
+			$.getJSON(url, function(response){
+				window.plugins.toast.showShortBottom(response.message);
+				$('#enquiry-form')[0].reset();
+				window.location = 'index.html';
+			});
+          }
+        }
+      </script>
+      </script>
+   </body>
+</html>

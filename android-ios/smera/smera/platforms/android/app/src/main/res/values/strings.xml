@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RatingsBuzz</string>
+    <string name="launcher_name">@string/app_name</string>
+    <string name="activity_name">@string/launcher_name</string>
+    
+    <string name="google_app_id">1:530020253105:android:e887dd357325aa8a</string>
+    <string name="google_api_key">AIzaSyDuUm1cCoCmXaYqHU369GZ8Wmj-QVvZcOU</string>
+</resources>

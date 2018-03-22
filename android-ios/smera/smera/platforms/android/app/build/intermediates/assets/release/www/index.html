@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+        <title>Smera</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Theme CSS -->
+        <link href="css/freelancer.min.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,600,700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+        <!--<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">-->
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <style type="text/css">
+            #loader {
+                position: absolute;
+                left: 60%;
+                top: 50%;
+                z-index: 1;
+                margin: -75px 0 0 -75px;
+                border: 8px solid #f3f3f3;
+                border-radius: 50%;
+                border-top: 8px solid #3498db;
+                width: 80px;
+                height: 80px;
+                -webkit-animation: spin 2s linear infinite;
+                animation: spin 2s linear infinite;
+                display: none;
+            }
+
+            #swipe-indicator {
+                position: absolute;
+                left: 7%;
+                top: 32%;
+                z-index: 1;
+                width: 86%;
+                background: #ffffff;
+                opacity: 0.9;
+                display: none;
+                z-index: 99999999999;      
+            }
+            
+            .btn-gray{
+                background: #808080;
+                color: #fff;
+            }
+            @-webkit-keyframes spin {
+                0% { -webkit-transform: rotate(0deg); }
+                100% { -webkit-transform: rotate(360deg); }
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            /* Add animation to "page content" */
+            .animate-bottom {
+                position: relative;
+                -webkit-animation-name: animatebottom;
+                -webkit-animation-duration: 1s;
+                animation-name: animatebottom;
+                animation-duration: 1s
+            }
+
+            @-webkit-keyframes animatebottom {
+                from { bottom:-100px; opacity:0 } 
+                to { bottom:0px; opacity:1 }
+            }
+
+            @keyframes animatebottom { 
+                from{ bottom:-100px; opacity:0 } 
+                to{ bottom:0; opacity:1 }
+            }
+            .buddy {
+                display: none;
+                background: #fff;
+                position: absolute;
+                cursor: hand;
+                transition-property: transform;
+                transition-duration: 0.5s;
+                transition-timing-function: ease-out;
+
+                /*apply a transform to kick in the hardware acceleration.  Without this, the first
+                time we add the transform you get odd rendering of the divs (half missing) */
+                transform: translate(0, 0);
+                /*box-shadow: 1px 8px 5px #e6e6e6;*/
+            }
+            .swipe-current, .swipe-next, .swipe-prev{
+                display: block !important;
+            }
+            .swipe-current{
+                z-index: 99999999;
+            }
+            .swipe-prev{
+                z-index: 999999999;   
+            }
+            /*.strip{
+                display: none;
+                position: absolute;
+                width: 100%;
+            }*/
+
+            #stripBar{ position: relative; height: 34px;}
+
+            .rotate-left {
+                transform: translateX(-100%);
+                transition: 0.4s ease-in-out;
+                cursor: e-resize;
+                z-index: 10;
+            }
+
+            .rotate-right{
+                transform: translateX(100%);
+                transition: 0.4s ease-in-out;
+                cursor: e-resize;
+                z-index: 10;
+            }
+            th td{
+                font-size: 15px;
+            }
+        </style>
+    </head>
+
+    <body id="page-top">
+       <div id="loader"></div>
+        <div id="swipe-indicator">
+            <img src="img/swipe-indicator.png" class="img-responsive" />
+            <button type="button" class="btn btn-gray pull-right">Ok, Got It!</button>
+        </div>
+
+       
+        <!-- /.container-fluid -->
+
+
+        <div id="app-body">
+            <!-- Portfolio Grid Section -->
+            <div id="content">
+
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+
+
+        <!-- Footer -->
+        <footer style="position: fixed;bottom: 0;width: 100%;z-index:999999999;">
+            <div class="">
+                <div class="container footer-below">
+                    <div class="col-lg-12">
+                        <p class="lead" style="text-align:left;padding:0px !important;color:#fff !important;" id="enquiry-form" >Could not find a rating you searched for?<br/>
+                            Please let us know. <i class="fa fa-envelope-o" aria-hidden="true"></i></p>                       
+                    </div>
+                </div>              
+            </div>
+        </footer>
+        <!-- <script type="text/javascript" src="cordova.js"></script> -->
+        <!-- jQuery -->
+        <script src="js/jquery.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js"></script> 
+
+        <script src="js/jquery.touchSwipe.js"></script>
+
+
+        <script>
+            
+          $(document).ready(function(){   
+            checkFirstTimeVisit();
+            getClients(1, 'next');
+            function checkFirstTimeVisit(){
+                inPageVisit = localStorage.getItem("index-page-visit");
+                if(inPageVisit==null){
+                    window.location = 'swipe-indicator.html';
+                }
+            }
+            localStorage.setItem('start', 1);
+            $(".foldit").hide();
+            $("#foldit").click(function () {
+                $(".foldit").toggle('slow');
+                $("#logoText").toggle();
+            });
+            $('#enquiry-form').on('click', function () {
+                window.location = 'enquiry-form.html';
+            });
+
+            var refreshList = function(selector){
+                var clickHandler = ('ontouchstart' in document.documentElement ? "touchstart" : "click");
+                $(selector).bind(clickHandler, function(e) {
+                    $('#content').empty();
+                    // $('#stripBar').empty();
+                    getClients(1, 'next');
+                });
+            }
+
+            function scrollImages(distance, duration, selectorId) {
+                console.log(distance);
+                var r = $.Deferred();
+                $('#'+selectorId).css("transition-duration", (duration / 1000).toFixed(1) + "s");
+                var value = (distance < 0 ? "" : "-") + Math.abs(distance).toString();                
+                $('#'+selectorId).css("transform", "translate(" + value + "px,0)");
+            }
+
+            var showSearchBox = function(selector){
+                $(selector).on("click", function(e){
+                    e.stopImmediatePropagation();
+                    $('#'+$(this).attr('id')+'search').toggle('slow');
+                    $('#'+$(this).attr('id')+'logo').toggle('slow');
+                });
+            }
+
+            var addSwipe = function (selector) {
+                $(selector).swipe('destroy');
+                $(selector).swipe({
+                    swipeStatus: function(event, phase, direction, distance){
+                        console.log(phase);
+                       if($(this).hasClass('swipe-current')){
+                            var index = $(this).index();
+                            if (phase == "move") {
+                                if (direction == "left"){
+                                    checkLogin();
+                                    scrollImages($(this).width(), 100,$(this).prev().attr('id'));
+                                    scrollImages(distance, 500, $(this).attr('id'));
+                                } else if (direction == "right") {
+                                    checkLogin();
+                                    scrollImages(0, 100, $(this).attr('id'));
+                                    var selectorId = $(this).prev().attr('id');
+                                    $('#'+selectorId).css('z-index','99999999');
+                                    $('#'+selectorId).next().css('z-index','11111111');
+                                    scrollImages(($(this).width()-distance), 500,selectorId);
+                                }
+                                // else if (direction == "up") {
+                                //     url = 'https://www.smera.in/documents/ratings/revised/' + $(this).attr('id') + '-RR-' + $(this).attr('data-attr') + '.pdf';
+                                //     window.open(url, '_blank', 'location=no,hidden=yes,toolbar=no');
+                                // } else if (direction == "down") {
+                                //     url = 'https://www.smera.in/smera-bond-ratings-live.php?c_id=' + $(this).attr('id');
+                                //     window.open(url, '_blank', 'location=no,hidden=yes,toolbar=no');
+                                // }   
+                            }else if (phase == "cancel") {
+                                console.log("Inside cancel");
+                                console.log($(this).attr('id'));
+                                scrollImages($(this).width(), 100,$(this).prev().attr('id'));
+                                scrollImages(0, 100, $(this).attr('id'));
+                            }else if(phase == "end"){
+                                if (direction == "right") {
+                                    if ($(this).is(':first-child')) {
+                                        $('#content').empty();
+                                        $('#stripBar').empty();
+                                        start = localStorage.getItem('start');
+                                        if (start != 1) {
+                                            start = (parseInt(start) - 10);
+                                            getClients(start, 'previous');
+                                        } else {
+                                            getClients(start, 'next');
+                                        }
+                                    }else{
+                                        var selectorId = $(this).prev().attr('id');
+                                        $('#'+selectorId).css('z-index','');
+                                        $('#'+selectorId).next().css('z-index','');
+                                        $('#'+selectorId).removeClass('swipe-prev');
+                                        $('#'+selectorId).addClass('swipe-current');
+                                        $('#'+selectorId).next().removeClass('swipe-current');
+                                        $('#'+selectorId).next().addClass('swipe-next');
+                                        $(this).next().removeClass('swipe-next');
+                                        scrollImages(0, 100, selectorId);
+                                    }
+                                    if(!$('#'+selectorId).is(':first-child')){
+                                        $('#'+selectorId).prev().addClass('swipe-prev');
+                                    }
+                                } else if (direction == "left") {
+                                    var selectorId = $(this).attr('id');
+                                    scrollImages($(this).width(), 100, $(this).attr('id'));
+                                    nextImage(selectorId);
+                                }else if (direction == "up") {
+                                    url = 'https://www.smera.in/documents/ratings/revised/' + $(this).attr('data-cid') + '-RR-' + $(this).attr('data-attr') + '.pdf';
+                                    window.open(url, '_blank', 'location=no,hidden=yes,toolbar=no');
+                                } else if (direction == "down") {
+                                    url = 'https://www.smera.in/smera-bond-ratings-live.php?c_id=' + $(this).attr('data-cid');
+                                    window.open(url, '_blank', 'location=no,hidden=yes,toolbar=no');
+                                }
+                            }
+                       }
+                    }
+                    ,
+                    triggerOnTouchEnd: true,
+                    allowPageScroll: "vertical",
+                    threshold: 75
+                });
+            };
+
+            function nextImage(selectorId){
+                console.log(selectorId);
+                if(!$('#'+selectorId).is(':first-child')){
+                    $('#'+selectorId).prev().removeClass('swipe-prev');
+                    // $('.strip').eq(index).prev().removeClass('swipe-prev');
+                }
+                $('#'+selectorId).removeClass('swipe-current');
+                $('#'+selectorId).addClass('swipe-prev');
+                if(!$('#'+selectorId).is(':last-child')){
+                    $('#'+selectorId).next().removeClass('swipe-next');
+                    $('#'+selectorId).next().addClass('swipe-current');
+                    $('#'+selectorId).next().next().addClass('swipe-next');
+                }
+                if ($('#'+selectorId).is(':last-child')) {
+                    start = localStorage.getItem('start');
+                    if ($('#'+selectorId).find('input').val() == '') {
+                        start = (parseInt(start) + 10);
+                    }
+                    $('#content').empty();
+                    $('#stripBar').empty();
+                    getClients(start, 'next');
+                    $('#searchText').val('');
+                }
+            }
+
+            function formatNumber(number) {
+                if (number < 10) {
+                    return '0' + number;
+                } else {
+                    return number;
+                }
+            }
+
+            function getColor(strRatingStatus) {
+                color = [];
+                ratingStatus = (strRatingStatus.indexOf("/") >= 0) ? $.trim(strRatingStatus.substring(0, strRatingStatus.indexOf("/"))) : strRatingStatus;
+                switch (ratingStatus) {
+                    case 'Assigned':
+                        color['background'] = '#01579b';
+                        color['foreground'] = '#4FC3F7';
+                        color['class'] = 'varti-bg-blue';
+                        color['tableClass'] = 'bdleft-blue';
+                        color['textColor'] = '#ffffff';
+                        return color;
+                        break;
+
+                    case 'Reaffirmed':
+                        color['background'] = '#ffeb3b';
+                        color['foreground'] = '#fff59d';
+                        color['class'] = 'varti-bg-yellow';
+                        color['tableClass'] = 'bdleft-yellow';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+
+                    case 'Withdrawn':
+                        color['background'] = '#9e9e9e';
+                        color['foreground'] = '#eeeeee';
+                        color['class'] = 'varti-bg-gray';
+                        color['tableClass'] = 'bdleft-gray';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+
+                    case 'Suspended':
+                        color['background'] = '#ffeb3b';
+                        color['foreground'] = '#fff59d';
+                        color['class'] = 'varti-bg-yellow';
+                        color['tableClass'] = 'bdleft-yellow';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+
+                    case 'Upgraded':
+                        color['background'] = '#1b5e20';
+                        color['foreground'] = '#a5d6a7';
+                        color['class'] = 'varti-bg-green';
+                        color['tableClass'] = 'bdleft-green';
+                        color['textColor'] = '#ffffff';
+                        return color;
+                        break;
+
+                    case 'Downgraded':
+                        color['background'] = '#f44336';
+                        color['foreground'] = '#ef9a9a';
+                        color['class'] = 'varti-bg-red';
+                        color['tableClass'] = 'bdleft-red';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+
+                    case 'Ratings Under Watch':
+                        color['background'] = '#b71c1c';
+                        color['foreground'] = '#ef9a9a';
+                        color['class'] = 'varti-bg-maroon';
+                        color['tableClass'] = 'bdleft-maroon';
+                        color['textColor'] = '#ffffff';
+                        return color;
+                        break;
+
+                    case 'Indicative':
+                        color['background'] = '#ff9800';
+                        color['foreground'] = '#ffcc80';
+                        color['class'] = 'varti-bg-orange';
+                        color['tableClass'] = 'bdleft-orange';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+
+                    default:
+                        color['background'] = '#ff9800';
+                        color['foreground'] = '#ffcc80';
+                        color['class'] = 'varti-bg-orange';
+                        color['tableClass'] = 'bdleft-orange';
+                        color['textColor'] = '#000000';
+                        return color;
+                        break;
+                }
+            }
+            function clientContent(data) {
+                var html = '', stripHtml = '';
+                date = new Date(data['ratingDate']);
+                strDate = date.getFullYear() + '' + formatNumber((date.getMonth() + 1)) + '' + formatNumber(date.getDate());
+                bannerColor = getColor(data['ratingStatus']);
+                color = bannerColor['foreground'];
+                background = bannerColor['background'];
+                bannerClass = bannerColor['class'];
+                tableClass = bannerColor['tableClass'];
+                textColor = bannerColor['textColor'];
+                if ((data['outlookDetails'] == '' || data['outlookDetails'] == null)) {
+                    outlookDetails = 'N.A';
+                } else {
+                    outlookDetails = data['outlookDetails'];
+                }
+                html += '<div class="buddy" id="' + data['clientCode'] + strDate +'" data-color="' + background + '" data-attr="' + strDate + '" data-cid="'+data['clientCode']+'" style="width:100%;height:90vh">';
+
+                html += '<div id="stripBar">';
+                html += '<div class="strip" id="strip-'+data['clientCode']+'" style="background: ' + background + ';">';
+                html += '<button class="pull-right refresh-button" style="cursor:pointer;background:none;border:0px;"><i class="fa fa-refresh" style="padding: 10px 20px 0px 0px;color:'+textColor+';"></i></button>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="container">';
+                html += '<div class="row nav-bg">';
+                html += '<div class="col-md-2 col-sm-2 col-xs-2">';
+                html += '<img src="img/search-icon.png" id="foldit'+data['clientCode']+'" class="img-responsive curpot" alt="search-icon" style="width: 57%;margin-top: 8px;">';
+                html += '<div class="search-box" style="display:none;" id="foldit'+data['clientCode']+'search">';
+                html += '<div id="custom-search-input">';
+                html += '<div class="input-group col-md-12">';
+                html += '<form class="searchForm" name="search" id="foldit'+data['clientCode']+'form">';
+                html += '<input type="text" class="form-control input-lg noSwipe" placeholder="Search by Company Name"  style="margin-top: 8px; margin-left: 8px; height:23px; "/>';
+                html += '<button type="submit" class="sercbtn" style="margin-top: 10px;font-size: 12px">';
+                html += '<i class="fa fa-search" aria-hidden="true"></i></button>  ';
+                html += '</form>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="col-md-2 col-sm-2 col-xs-6 pull-right" style="display:block;" id="foldit'+data['clientCode']+'logo">';
+                html += '<h4 style="padding-top: 0px; text-align: right;" class="logo-font">RATINGS<span style="color:red;text-transform: uppercase;font-weight: 700;font-size: 18px;">BUZZ</span></h4>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="container">';
+                html += '<div class="row">';
+                html += '<div class="'+bannerClass+' banner">';
+                html += '<ul>';
+                html += '<li><a href="#" id="clientName" style="font-size:19px;color:'+textColor+';">' + data['clientName'] + '</a></li>';
+                html += '<li><a href="#" id="ratingAssigned" style="color:'+textColor+';">Rating ' + data['ratingStatus'] + '</a></li>';
+                html += '<li><a href="#" id="ratingStatus" style="background:' + color + ';color:'+textColor+';font-size:15px;">' + data['ratingPackage'] + '</a></li>';
+                html += '<li><a href="#" id="quantum" style="color:'+textColor+';">Quantum - ' + data['amount'] + ' Cr.</a></li>';
+                html += '<li><a href="#" id="outlook" style="color:'+textColor+';">Outlook - ' + outlookDetails + '</a></li>';
+                html += '<li><a href="#" id="pressRelease" style="color:'+textColor+';">Press Release Date - ' + data['date'] + '</a></li>';
+                html += '</ul>';
+                html += '</div>';
+
+                html += '</div>';
+
+                html += '</div>';
+                html += '<div class="container">';
+                html += '<div class="row">';
+                
+                html += '</div>';
+                html += '<div class="row">';
+                html += '<div class="col-md-12 pd frstBg">';
+                html += '<table class="table tabCurv '+tableClass+'" style="width:100%;">';
+                html += '<thead><tr>';
+                html += '<th scope="col">Facilities</th>';
+                html += '</tr></thead>';
+                i = 0;
+                $.each(data['ratingDetails'], function (i, ratingDetails) {
+                    html += '<tr>';
+                    html += '<td width="25%">' + ratingDetails['subcategory'] + '</td>';
+                    html += '<td width="25%">' + ratingDetails['term'] + '</td>';
+                    html += '<td width="25%">INR ' + ratingDetails['amount'] + ' CR</td>';
+                    html += '</tr>';
+                    i++;
+                });
+                html += '</table>';
+                html += '<table class="table tabCurv '+tableClass+'">';
+                html += '<tbody>';
+                html += '<td width="25%"><strong>Industry: </strong></td>';
+                html += '<td width="25%">' + data['industryName'] + '</td>';
+                html += '<td width="25%"><strong>Location: </strong></td>';
+                html += '<td width="25%">' + data['cityName'] + '</td>';
+                html += '</tbody>';
+                html += '</table>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                $('#content').append(html);
+                addSwipe('.buddy');
+                refreshList('.refresh-button');
+                showSearchBox('.curpot');
+            }
+
+            function checkLogin() {
+                var email = localStorage.getItem('email');
+                if (email == null || email === '') {
+                    window.location = 'google-signin.html';
+                }
+            }
+            function refreshAgain(start, dir) {
+
+                getClients(start, dir);
+            }
+
+            function getClients(start, dir) {
+                $.ajax({
+                    url: 'http://smera.in/app/index.php?start=' + start,
+                    type: 'get',
+                    crossDomain: true,
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $('#loader').css('display', 'block');
+                        $('#app-body').css('display', 'none');
+                    },
+                    success: function (response) {
+
+                    },
+                    error: function (x, response) {
+                        console.log(x);
+                        console.log("error");
+                    },
+                    timeout: 0
+                }).done(function (response) {
+                    $('#loader').css('display', 'none');
+                    $('#app-body').css('display', 'block');
+                    if (response.length > 0) {
+                        localStorage.setItem('start', start);
+                        $.each(response, function (i, item) {
+                            clientContent(item);
+                        });
+                        rPageVisit = localStorage.getItem("rating-page-visit");
+                        if(null!=rPageVisit){
+                            $('#swipe-indicator').hide();
+                        }else{
+                            setTimeout(function(){
+                                console.log(rPageVisit);
+                                $('#swipe-indicator').show();
+                            }, 5000);
+                            localStorage.setItem("rating-page-visit", 1);
+                        }
+                    } else {
+                        start = (dir == 'next') ? (parseInt(start) + 10) : (parseInt(start) - 10);
+                        refreshAgain(start, dir);
+                    }
+                    if (dir == 'next') {
+                        $('.buddy:first').addClass('swipe-current');
+                        $('.buddy:first').next().addClass('swipe-next');
+                    } else {
+                        $('.buddy:last').addClass('swipe-current');
+                        $('.buddy:last').prev().addClass('swipe-prev');
+                        $('.buddy').each(function(){
+                            if(!$(this).is(':last-child')){
+                                $(this).css("transition-duration", "0s");
+                                $(this).css("transform", "translate(-" + $(this).width() + "px,0)");
+                            }
+                        });
+                    }
+                    
+                });
+            }
+
+            $(document).on('submit', 'form', function(evt){
+                evt.preventDefault();
+                var searchText = $(this).find('input').val();
+                if(searchText!=""){
+                    searchClients(searchText);
+                }
+            });
+            
+            $('#swipe-indicator .btn').click(function(){
+                $('#swipe-indicator').hide();
+            });
+
+            function searchClients(searchText) {
+                var searchText = searchText;
+                console.log('http://smera.in/app/index.php?searchText=' + searchText);
+                $.ajax({
+                    url: 'https://www.smera.in/app/index.php?searchText=' + searchText,
+                    type: 'get',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $('#loader').css('display', 'block');
+                        $('#app-body').css('display', 'none');
+                    },
+                    success: function (response) {
+                        
+                    },
+                    error: function (x, response) {
+                        console.log(x.responseText);
+                        console.log(response);
+                        console.log("error");
+                    }
+                }).done(function(response){
+                    $('#loader').css('display', 'none');
+                    $('#app-body').css('display', 'block');
+                    console.log(response);
+                    if(response){
+                        $('#content').empty();
+                        $('#stripBar').empty();
+                        $.each(response, function (i, item) {
+                            clientContent(item);
+                        });
+                        localStorage.setItem('start', 1);
+                        $('.buddy:first').addClass('swipe-current');
+                        $('.buddy:first').next().addClass('swipe-next');
+                    }
+                });
+            }
+            });
+//            });
+
+        </script>
+    </body>
+
+</html>

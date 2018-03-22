@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <title>Smera</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/freelancer.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body id="page-top" class="index">
+    <!-- Navigation -->
+    <div class="container">
+        <div class="row">
+          <div class="col-md-12 loginScreen text-center">
+              <h1 style="color:#222;" class="logo-font">RATINGS<span style="color:red;">BUZZ</span></h1>
+                <h3>Login with</h3>
+                <img src="img/gmail-new1.png" class="img-responsive" alt="" onclick="login();">
+                <!-- <button class="btn btn-primary" type="button"  onclick="login();">Login With Google</button> -->
+            </div>
+        </div> 
+    </div>
+    
+    <footer style="position: fixed;bottom: 0;width: 100%;">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="text-center"><span style=" font-size:16px;">&#169; </span> all Right Reserved by SMERA</p>
+            </div>
+        </div> 
+    </footer>
+<script type="text/javascript" src="cordova.js"></script>
+<!-- <script type="text/javascript" src="js/index.js"></script> -->
+<script src="js/jquery.min.js"></script>
+</script>
+    
+<script type="text/javascript">
+		document.addEventListener("deviceready", onDeviceReady, false);
+		function onDeviceReady() {
+			var email = localStorage.getItem('email');
+			if (email != null) {
+				window.location = 'index.html';
+			}
+		}
+        function login() {
+            window.plugins.googleplus.login(
+                {},
+                function (obj) {
+                    // document.querySelector("#feedback").innerHTML = "Hi, " + obj.displayName + ", " + obj.email;
+                    localStorage.setItem('email', obj.email);
+                    localStorage.setItem('name', obj.displayName);
+                    localStorage.setItem('image', obj.imageUrl);
+                    saveData();
+                },
+                function (msg) {
+                    window.plugins.toast.showShortBottom("error: " + msg);
+                }
+            );
+        }
+
+        function saveData(){
+            var data = {
+                'email' : localStorage.getItem('email'),
+                'name' : localStorage.getItem('name'),
+                'image' : localStorage.getItem('image')
+            };
+			url = 'https://www.smera.in/app/auth.php?email='+data['email']+'&name='+data['name']+'&image='+data['image'];
+			$.getJSON(url, function(response){
+				if(response.status){
+					window.plugins.toast.showShortBottom(response.message);
+					window.location = 'index.html';
+				}else{
+					window.plugins.toast.showShortBottom(response.message);
+					localStorage.setItem('email', '');
+                    localStorage.setItem('name', '');
+                    localStorage.setItem('image', '');
+				}
+			});
+        }
+</script>
+
+</body>
+
+</html>

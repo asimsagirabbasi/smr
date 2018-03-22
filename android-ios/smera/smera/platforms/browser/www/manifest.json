@@ -1,0 +1,12 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "RatingsBuzz",
+  "short_name": "RatingsBuzz",
+  "version": "com.technople.bizshorts",
+  "description": "Smera Bond Rating APP",
+  "author": "Smera Team",
+  "icons": [],
+  "orientation": "portrait",
+  "start_url": "index.html"
+}

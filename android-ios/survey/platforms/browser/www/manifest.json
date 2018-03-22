@@ -1,0 +1,10 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "Survey",
+  "short_name": "Survey",
+  "version": "com.technople.survey",
+  "author": "Aditya Rao",
+  "icons": [],
+  "start_url": "index.html"
+}

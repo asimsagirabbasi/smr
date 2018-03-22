@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "530020253105",
+    "firebase_url": "https://smera-192408.firebaseio.com",
+    "project_id": "smera-192408",
+    "storage_bucket": "smera-192408.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530020253105:android:e887dd357325aa8a",
+        "android_client_info": {
+          "package_name": "com.technople.bizshorts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530020253105-kd2ufiedmpa0mt4umoqubpk836bqh992.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "530020253105-2ou8a7b8iuhiba1m2q0c10la1564ubum.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technople.bizshorts",
+            "certificate_hash": "ca664ff842a26bed83747dce372443c4d000b59c"
+          }
+        },
+        {
+          "client_id": "530020253105-213s175n3spqp8jckmesprslprui2lv1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuUm1cCoCmXaYqHU369GZ8Wmj-QVvZcOU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,24 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.technople.survey"
+    },
+    "cordova-sqlite-storage": {
+      "PACKAGE_NAME": "com.technople.survey"
+    },
+    "cordova-plugin-x-toast": {
+      "PACKAGE_NAME": "com.technople.survey"
+    },
+    "cordova-plugin-network-information": {
+      "PACKAGE_NAME": "com.technople.survey"
+    }
+  },
+  "dependent_plugins": {}
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;style-src * 'unsafe-inline' 'self' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;img-src * data: 'unsafe-inline' 'self' content:;fmedia-src mediastream;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+        <title>Smera</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Theme CSS -->
+        <link href="css/freelancer.min.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,600,700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+        <!--<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">-->
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <style type="text/css">
+			body{
+				background: #fff !important;
+			}
+			.btn-gray{
+				background: #808080;
+				color: #fff;
+			}
+        </style>
+    </head>
+
+    <body id="page-top">
+        <!-- Navigation -->
+        <div class="container">
+			<h4 style="text-transform: none !important;
+    color: #585858;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 30%;font-weight:normal;" class="logo-font">Welcome to the World of <span style="color:black;
+                                                                         text-transform: uppercase;
+                                                                         font-weight: bold;font-size: 18px;">RATINGS</span><span style="color:red;
+                                                                         text-transform: uppercase;
+                                                                         font-weight: bold;font-size: 18px;">BUZZ</span><br/>
+			Powered by SMERA Ratings Limited</h4>
+			
+			<img src="img/indicator.png" class="img-responsive" style="margin-top:10%;"/>
+			<p style="text-align: center;margin-top:10%;">For any queries, please write to us at info@smera.in .</p>
+        </div>
+
+        <!-- Contact Section -->
+
+
+        <!-- Footer -->
+        <footer style="padding: 20px;">
+			<div class="">					
+					<button type="button" class="btn btn-gray pull-right">Ok, Got It!</button>															 
+                </div>				
+            </div>
+        </footer>
+        <!-- <script type="text/javascript" src="cordova.js"></script> -->
+        <!-- jQuery -->
+        <script src="cordova.js"></script> 
+        <script src="js/jquery.min.js"></script>
+		<script type="text/javascript">
+            document.addEventListener("deviceready", onDeviceReady, false);
+            function onDeviceReady() {
+                window.FirebasePlugin.onTokenRefresh(function(token) {
+                    var url = 'https://www.smera.in/app/register.php?token='+token;
+                    $.getJSON(url, function(response){
+                        if(response.status){
+                            console.log(response);
+                        }else{
+                            console.log("Already added");
+                        }
+                    });
+                }, function(error) {
+                    console.error(error);
+                });
+                window.FirebasePlugin.onNotificationOpen(function(data) { 
+                    console.log('Data '+data);
+                });
+            }
+			$(document).ready(function(){
+				$('.btn-gray').click(function(){
+					localStorage.setItem("index-page-visit", 1);
+					window.location = 'index.html';
+				});
+			});
+		</script>
+    </body>
+
+</html>
